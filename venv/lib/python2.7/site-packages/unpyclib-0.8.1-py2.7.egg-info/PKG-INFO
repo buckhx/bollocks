@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: unpyclib
+Version: 0.8.1
+Summary: Libraries for UnPyc - python disassembler and decompiler
+Home-page: http://unpyc.sourceforge.net/
+Author: Dmitri Kornev
+Author-email: tswr@tswr.ru
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
