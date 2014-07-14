@@ -14,10 +14,13 @@ def define_callback(option, opt_str, value, parser):
     print(defn['name']+':'+defn['meaning'])
 
 def page_callback(option, opt_str, index, parser):
+    print(50*"*")
+    print("Paging urband...")
     if "random"[:len(index.lower())] == index.lower():
         index = None
         while index is None:
             index = randindex()
+            print("Rolling: "+index)
             try:
                 scraper.page(index[0], index[1:])
             except ValueError:
@@ -26,6 +29,8 @@ def page_callback(option, opt_str, index, parser):
     if not re.match("^[a-zA-Z][0-9]+$", index):
         raise OptionValueError("Page Index must be of form <LETTER><NUMBER> ie. R31. Value was: "+index)
     letter, page = index[0], index[1:]
+    print("Looking up page: "+index)
+    print(50*"*")
     try:
         [print(word) for word in scraper.page(letter, page)]
     except ValueError:
