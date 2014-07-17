@@ -4,14 +4,19 @@ from optparse import OptionParser, OptionValueError
 import re
 import random
 import string
+import util.bredis
 
 from urbandictionary import scraper
+
 
 randindex = lambda: random.choice(string.ascii_lowercase)+str(random.randint(1, 500))
 
 def define_callback(option, opt_str, value, parser):
-    defn = scraper.define(value)
-    print(defn['name']+':'+defn['meaning'])
+    try:
+        defn = scraper.define(value)
+        print(defn['name']+':'+defn['meaning'])
+    except ValueError:
+        raise OptionValueError("Cannot find definiton for: "+value)
 
 def page_callback(option, opt_str, index, parser):
     print(50*"*")
@@ -36,6 +41,18 @@ def page_callback(option, opt_str, index, parser):
     except ValueError:
        raise OptionValueError("Page index out of range: "+index)
 
+def slurp_callback(option, opt_str, value, parser):
+    try:
+        defn = scraper.define(value)
+        if len(parser.rargs) > 0 and not parser.rargs[0].startswith('-'):
+            defn["meaning"] = parser.rargs[0]
+            del parser.rargs[0]
+        util.bredis.slurp(defn)
+        key = util.bredis.defn_key(value)
+        print("Slurped {0} with key: {1}".format(value, key))
+    except ValueError:
+        raise OptionValueError("Cannot find definiton for: "+value)
+
 optparser = OptionParser()
 
 optparser.add_option('-d', '--define', dest="define", type='str',
@@ -45,5 +62,9 @@ optparser.add_option('-d', '--define', dest="define", type='str',
 optparser.add_option('-p', '--page', dest="page", type='str',
     action="callback", callback=page_callback,
     metavar="INDEX", help="List entries at index. Index is in the form <LETTER><NUMBER>. B52 is page 52 of B entries. 'random' will pick a random index")
+
+optparser.add_option('-s', '--slurp', dest="slurp", type='str',
+    action="callback", callback=slurp_callback,
+    metavar="HEADWORD", help="Slurp HEADWORD into bredis with definition and other attributes")
 
 (opts, args) = optparser.parse_args()

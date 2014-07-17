@@ -14,15 +14,18 @@ def define(word):
     soup = BeautifulSoup(urllib2.urlopen(url).read())
     box = soup.find(class_="box")
     key = format_key(word)
-    lemma = {}
-    lemma['name'] = box.find(class_="word").a.text
-    lemma['meaning'] = box.find(class_="meaning").text
-    lemma['defid'] = box.attrs['data-defid']
-    lemma['contributor'] = str(box.find(class_="contributor"))
-    lemma['example'] = box.find(class_="example").text
-    lemma['upvote'] = box.find(class_="up").span.text
-    lemma['downvote'] = box.find(class_="down").span.text
-    return lemma
+    try:
+        lemma = {}
+        lemma['name'] = box.find(class_="word").a.text
+        lemma['meaning'] = box.find(class_="meaning").text
+        lemma['defid'] = box.attrs['data-defid']
+        lemma['contributor'] = str(box.find(class_="contributor"))
+        lemma['example'] = box.find(class_="example").text
+        lemma['upvote'] = box.find(class_="up").span.text
+        lemma['downvote'] = box.find(class_="down").span.text
+        return lemma
+    except AttributeError:
+        raise ValueError("No definiton for: "+word), None, sys.exc_info()[2]
 
 def page(letter, page, popular=False):
     filters = {}
